@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head><title>OAuth Attack Test</title></head>
+<body style="font-family:Arial;">
+    <h2>🔥 COOP OAuth Takeover Test</h2>
+    <p>Click button to test if your login page is vulnerable:</p>
+    <button onclick="testAttack()" style="padding:10px;font-size:18px;">🚨 Test Attack</button>
+    <div id="status" style="margin-top:20px;padding:10px;background:#f0f0f0;"></div>
+    
+    <script>
+    function testAttack() {
+        document.getElementById('status').innerHTML = '⏳ Opening login page...';
+        
+        // REPLACE with YOUR actual login URL
+        const yourLoginUrl = 'https://callhippo.com/signup/';
+        const loginWindow = window.open(yourLoginUrl, 'test-popup', 'width=500,height=600');
+        
+        let checks = 0;
+        const checkInterval = setInterval(() => {
+            checks++;
+            document.getElementById('status').innerHTML = `🔍 Checking... (${checks}s)`;
+            
+            if (loginWindow.closed) {
+                clearInterval(checkInterval);
+                document.getElementById('status').innerHTML = '❌ Window closed - Test ended';
+                return;
+            }
+            
+            try {
+                // Check if Google login started (vulnerable = can access!)
+                const url = loginWindow.location.href;
+                console.log('Current URL:', url);
+                
+                if (url.includes('google.com') || url.includes('accounts.google')) {
+                    document.getElementById('status').innerHTML = '🚨 VULNERABLE! Can control Google login!';
+                    clearInterval(checkInterval);
+                    
+                    // SIMULATE attack - show what attacker does
+                    alert('✅ VULNERABLE!\n\nAttacker can now:\n1. See Google login\n2. Replace with fake OAuth\n3. Steal your tokens');
+                }
+            } catch(e) {
+                document.getElementById('status').innerHTML = '✅ SAFE! (COOP blocking access)';
+                clearInterval(checkInterval);
+            }
+            
+            if (checks > 30) { // 30 seconds max
+                clearInterval(checkInterval);
+                document.getElementById('status').innerHTML = '⏰ Test timeout - Click again if needed';
+            }
+        }, 1000);
+    }
+    </script>
+</body>
+</html>
